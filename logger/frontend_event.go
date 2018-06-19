@@ -45,6 +45,12 @@ func (f *FrontendEvent) String() string {
 	return string(f.body)
 }
 
+// WithTimestamp sets the timestamp.
+func (f *FrontendEvent) WithTimestamp(ts time.Time) *FrontendEvent {
+	f.timestamp = ts
+	return f
+}
+
 // WithLabel sets a label on the event for later filtering.
 func (f *FrontendEvent) WithLabel(key, value string) *FrontendEvent {
 	f.AddLabelValue(key, value)
