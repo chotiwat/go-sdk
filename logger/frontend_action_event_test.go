@@ -7,15 +7,15 @@ import (
 	"github.com/blend/go-sdk/assert"
 )
 
-func TestFrontendEventInterfaces(t *testing.T) {
+func TestFrontendActionEventInterfaces(t *testing.T) {
 	assert := assert.New(t)
 
-	fe := NewFrontendEvent([]byte("this is a test")).
+	fe := NewFrontendActionEvent([]byte("this is a test")).
 		WithLabel("foo", "bar")
 
 	eventProvider, isEvent := MarshalEvent(fe)
 	assert.True(isEvent)
-	assert.Equal(FEEvent, eventProvider.Flag())
+	assert.Equal(FrontendAction, eventProvider.Flag())
 	assert.False(eventProvider.Timestamp().IsZero())
 
 	metaProvider, isMetaProvider := MarshalEventMetaProvider(fe)
@@ -23,10 +23,10 @@ func TestFrontendEventInterfaces(t *testing.T) {
 	assert.Equal("bar", metaProvider.Labels()["foo"])
 }
 
-func TestFrontendEventProperties(t *testing.T) {
+func TestFrontendActionEventProperties(t *testing.T) {
 	assert := assert.New(t)
 
-	f := NewFrontendEvent([]byte(""))
+	f := NewFrontendActionEvent([]byte(""))
 	assert.False(f.Timestamp().IsZero())
 	assert.True(f.WithTimestamp(time.Time{}).Timestamp().IsZero())
 
@@ -36,7 +36,7 @@ func TestFrontendEventProperties(t *testing.T) {
 	assert.Empty(f.Annotations())
 	assert.Equal("zar", f.WithAnnotation("moo", "zar").Annotations()["moo"])
 
-	assert.Equal(FEEvent, f.Flag())
+	assert.Equal(FrontendAction, f.Flag())
 	assert.Equal(Error, f.WithFlag(Error).Flag())
 
 	assert.Empty(f.Body())

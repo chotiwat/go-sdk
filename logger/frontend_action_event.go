@@ -12,77 +12,77 @@ var (
 	_ EventAnnotations = &MessageEvent{}
 )
 
-// NewFrontendEvent creates a new query event.
-func NewFrontendEvent(body []byte) *FrontendEvent {
-	return &FrontendEvent{
-		EventMeta: NewEventMeta(FEEvent),
+// NewFrontendActionEvent creates a new query event.
+func NewFrontendActionEvent(body []byte) *FrontendActionEvent {
+	return &FrontendActionEvent{
+		EventMeta: NewEventMeta(FrontendAction),
 		body:      body,
 	}
 }
 
-// FrontendEvent represents an event on the frontend
-type FrontendEvent struct {
+// FrontendActionEvent represents an event on the frontend
+type FrontendActionEvent struct {
 	*EventMeta
 
 	body []byte
 }
 
 // Body returns the event body.
-func (f *FrontendEvent) Body() []byte {
+func (f *FrontendActionEvent) Body() []byte {
 	return f.body
 }
 
 // Flag returns the event flag
-func (f *FrontendEvent) Flag() Flag {
+func (f *FrontendActionEvent) Flag() Flag {
 	return f.flag
 }
 
 // Timestamp returns the event timestamp
-func (f *FrontendEvent) Timestamp() time.Time {
+func (f *FrontendActionEvent) Timestamp() time.Time {
 	return f.ts
 }
 
 // String returns the event as a string
-func (f *FrontendEvent) String() string {
+func (f *FrontendActionEvent) String() string {
 	return string(f.body)
 }
 
 // WithBody sets the body.
-func (f *FrontendEvent) WithBody(body []byte) *FrontendEvent {
+func (f *FrontendActionEvent) WithBody(body []byte) *FrontendActionEvent {
 	f.body = body
 	return f
 }
 
 // WithTimestamp sets the timestamp.
-func (f *FrontendEvent) WithTimestamp(ts time.Time) *FrontendEvent {
+func (f *FrontendActionEvent) WithTimestamp(ts time.Time) *FrontendActionEvent {
 	f.ts = ts
 	return f
 }
 
 // WithLabel sets a label on the event for later filtering.
-func (f *FrontendEvent) WithLabel(key, value string) *FrontendEvent {
+func (f *FrontendActionEvent) WithLabel(key, value string) *FrontendActionEvent {
 	f.AddLabelValue(key, value)
 	return f
 }
 
 // WithAnnotation adds an annotation to the event.
-func (f *FrontendEvent) WithAnnotation(key, value string) *FrontendEvent {
+func (f *FrontendActionEvent) WithAnnotation(key, value string) *FrontendActionEvent {
 	f.AddAnnotationValue(key, value)
 	return f
 }
 
 // WithFlag sets the flag.
-func (f *FrontendEvent) WithFlag(flag Flag) *FrontendEvent {
+func (f *FrontendActionEvent) WithFlag(flag Flag) *FrontendActionEvent {
 	f.flag = flag
 	return f
 }
 
 // Labels returns the event's labels
-func (f *FrontendEvent) Labels() map[string]string {
+func (f *FrontendActionEvent) Labels() map[string]string {
 	return f.labels
 }
 
 // Annotations returns the event's annotations
-func (f *FrontendEvent) Annotations() map[string]string {
+func (f *FrontendActionEvent) Annotations() map[string]string {
 	return f.annotations
 }
