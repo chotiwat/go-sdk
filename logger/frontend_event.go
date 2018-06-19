@@ -13,11 +13,10 @@ var (
 )
 
 // NewFrontendEvent creates a new query event.
-func NewFrontendEvent(body []byte, timestamp time.Time) *FrontendEvent {
+func NewFrontendEvent(body []byte) *FrontendEvent {
 	return &FrontendEvent{
-		flag:      Frontend,
-		timestamp: timestamp,
-		body:      body,
+		flag: Frontend,
+		body: body,
 	}
 }
 
