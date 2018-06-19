@@ -15,8 +15,8 @@ var (
 // NewFrontendEvent creates a new query event.
 func NewFrontendEvent(body []byte) *FrontendEvent {
 	return &FrontendEvent{
-		flag: Frontend,
-		body: body,
+		EventMeta: NewEventMeta(FEEvent),
+		body:      body,
 	}
 }
 
@@ -24,9 +24,12 @@ func NewFrontendEvent(body []byte) *FrontendEvent {
 type FrontendEvent struct {
 	*EventMeta
 
-	flag      Flag
-	timestamp time.Time
-	body      []byte
+	body []byte
+}
+
+// Body returns the event body.
+func (f *FrontendEvent) Body() []byte {
+	return f.body
 }
 
 // Flag returns the event flag
@@ -36,7 +39,7 @@ func (f *FrontendEvent) Flag() Flag {
 
 // Timestamp returns the event timestamp
 func (f *FrontendEvent) Timestamp() time.Time {
-	return f.timestamp
+	return f.ts
 }
 
 // String returns the event as a string
@@ -44,9 +47,15 @@ func (f *FrontendEvent) String() string {
 	return string(f.body)
 }
 
+// WithBody sets the body.
+func (f *FrontendEvent) WithBody(body []byte) *FrontendEvent {
+	f.body = body
+	return f
+}
+
 // WithTimestamp sets the timestamp.
 func (f *FrontendEvent) WithTimestamp(ts time.Time) *FrontendEvent {
-	f.timestamp = ts
+	f.ts = ts
 	return f
 }
 
@@ -56,12 +65,24 @@ func (f *FrontendEvent) WithLabel(key, value string) *FrontendEvent {
 	return f
 }
 
+// WithAnnotation adds an annotation to the event.
+func (f *FrontendEvent) WithAnnotation(key, value string) *FrontendEvent {
+	f.AddAnnotationValue(key, value)
+	return f
+}
+
+// WithFlag sets the flag.
+func (f *FrontendEvent) WithFlag(flag Flag) *FrontendEvent {
+	f.flag = flag
+	return f
+}
+
 // Labels returns the event's labels
 func (f *FrontendEvent) Labels() map[string]string {
 	return f.labels
 }
 
-// Annotations is a no op
+// Annotations returns the event's annotations
 func (f *FrontendEvent) Annotations() map[string]string {
-	return make(map[string]string)
+	return f.annotations
 }
