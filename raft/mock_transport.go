@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	_ Client = &MockTransport{}
-	_ Client = NoOpTransport("")
+	_ RPCClient = &MockTransport{}
+	_ RPCClient = NoOpTransport("")
 )
 
 // NoOpTransport implements client but does nothing.
@@ -32,7 +32,7 @@ func (t NoOpTransport) RequestVote(args *RequestVote) (*RequestVoteResults, erro
 }
 
 // NewMockTransport returns a new mock transport
-func NewMockTransport(remoteAddress string, peer Server) *MockTransport {
+func NewMockTransport(remoteAddress string, peer RPCServer) *MockTransport {
 	return &MockTransport{
 		remoteAddr:           remoteAddress,
 		appendEntriesHandler: peer.AppendEntriesHandler(),

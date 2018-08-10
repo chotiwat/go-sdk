@@ -2,7 +2,7 @@ package raft
 
 var (
 	// assert mock server is a server.
-	_ Server = &MockServer{}
+	_ RPCServer = &MockServer{}
 )
 
 // NewMockServer is a mocked server.

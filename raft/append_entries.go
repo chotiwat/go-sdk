@@ -12,16 +12,9 @@ type AppendEntries struct {
 	PrevLogTerm uint64
 	// LeaderCommit is the leader's Commit Index
 	LeaderCommit uint64
-
 	// Entries are the log entries to send.
 	// They can be formatted however you'd like.
 	Entries []Entry
-}
-
-// Entry is a raft log entry, it consists of an index and contents.
-type Entry struct {
-	Index    uint64
-	Contents []byte
 }
 
 // AppendEntriesResults is the response from an append entries request.

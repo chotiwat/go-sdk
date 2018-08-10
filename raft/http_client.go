@@ -17,12 +17,12 @@ import (
 
 var (
 	// Assert RPCClient is a client.
-	_ Client = &RPCClient{}
+	_ RPCClient = &HTTPClient{}
 )
 
 // NewRPCClient creates a new rpc client.
-func NewRPCClient(remoteAddr string) *RPCClient {
-	return &RPCClient{
+func NewRPCClient(remoteAddr string) *HTTPClient {
+	return &HTTPClient{
 		remoteAddr: remoteAddr,
 		transport:  &http.Transport{},
 		client:     &http.Client{},
@@ -30,8 +30,8 @@ func NewRPCClient(remoteAddr string) *RPCClient {
 	}
 }
 
-// RPCClient is the net/rpc client to talk to other nodes.
-type RPCClient struct {
+// HTTPClient is the net/rpc client to talk to other nodes.
+type HTTPClient struct {
 	sync.Mutex
 
 	remoteAddr string
@@ -44,40 +44,40 @@ type RPCClient struct {
 }
 
 // Timeout is the timeout for dialing new connections
-func (c *RPCClient) Timeout() time.Duration {
+func (c *HTTPClient) Timeout() time.Duration {
 	return c.timeout
 }
 
 // WithTimeout sets the DialTimeout
-func (c *RPCClient) WithTimeout(d time.Duration) *RPCClient {
+func (c *HTTPClient) WithTimeout(d time.Duration) *HTTPClient {
 	c.timeout = d
 	return c
 }
 
 // WithLogger sets the logger.
-func (c *RPCClient) WithLogger(log *logger.Logger) *RPCClient {
+func (c *HTTPClient) WithLogger(log *logger.Logger) *HTTPClient {
 	c.log = log
 	return c
 }
 
 // Logger returns the logger.
-func (c *RPCClient) Logger() *logger.Logger {
+func (c *HTTPClient) Logger() *logger.Logger {
 	return c.log
 }
 
 // WithRemoteAddr sets the remote addr.
-func (c *RPCClient) WithRemoteAddr(addr string) *RPCClient {
+func (c *HTTPClient) WithRemoteAddr(addr string) *HTTPClient {
 	c.remoteAddr = addr
 	return c
 }
 
 // RemoteAddr returns the remote address.
-func (c *RPCClient) RemoteAddr() string {
+func (c *HTTPClient) RemoteAddr() string {
 	return c.remoteAddr
 }
 
 // Open opens the connection.
-func (c *RPCClient) Open() error {
+func (c *HTTPClient) Open() error {
 	c.client = &http.Client{
 		Timeout:   c.timeout,
 		Transport: c.transport,
@@ -86,12 +86,12 @@ func (c *RPCClient) Open() error {
 }
 
 // Close is a nop right now.
-func (c *RPCClient) Close() error {
+func (c *HTTPClient) Close() error {
 	return nil
 }
 
 // RequestVote implements the request vote handler.
-func (c *RPCClient) RequestVote(args *RequestVote) (*RequestVoteResults, error) {
+func (c *HTTPClient) RequestVote(args *RequestVote) (*RequestVoteResults, error) {
 	var res RequestVoteResults
 	err := c.callWithTimeout(RPCMethodRequestVote, args, &res)
 	if err != nil {
@@ -101,7 +101,7 @@ func (c *RPCClient) RequestVote(args *RequestVote) (*RequestVoteResults, error) 
 }
 
 // AppendEntries implements the append entries request handler.
-func (c *RPCClient) AppendEntries(args *AppendEntries) (*AppendEntriesResults, error) {
+func (c *HTTPClient) AppendEntries(args *AppendEntries) (*AppendEntriesResults, error) {
 	var res AppendEntriesResults
 	err := c.callWithTimeout(RPCMethodAppendEntries, args, &res)
 	if err != nil {
@@ -111,7 +111,7 @@ func (c *RPCClient) AppendEntries(args *AppendEntries) (*AppendEntriesResults, e
 }
 
 // call invokes a method with the default call timeout.
-func (c *RPCClient) callWithTimeout(method string, args interface{}, reply interface{}) error {
+func (c *HTTPClient) callWithTimeout(method string, args interface{}, reply interface{}) error {
 	reqURL, err := url.Parse(fmt.Sprintf("http://%s/%s", c.remoteAddr, method))
 	if err != nil {
 		return exception.Wrap(err)
@@ -148,7 +148,7 @@ func (c *RPCClient) callWithTimeout(method string, args interface{}, reply inter
 	return nil
 }
 
-func (c *RPCClient) encode(obj interface{}) (io.ReadCloser, error) {
+func (c *HTTPClient) encode(obj interface{}) (io.ReadCloser, error) {
 	buffer := new(bytes.Buffer)
 
 	if err := json.NewEncoder(buffer).Encode(obj); err != nil {
@@ -157,7 +157,7 @@ func (c *RPCClient) encode(obj interface{}) (io.ReadCloser, error) {
 	return ioutil.NopCloser(buffer), nil
 }
 
-func (c *RPCClient) decode(obj interface{}, contents io.ReadCloser) error {
+func (c *HTTPClient) decode(obj interface{}, contents io.ReadCloser) error {
 	if contents == nil {
 		return exception.New("response body unset; cannot continue")
 	}
@@ -165,7 +165,7 @@ func (c *RPCClient) decode(obj interface{}, contents io.ReadCloser) error {
 	return exception.New(json.NewDecoder(contents).Decode(&obj))
 }
 
-func (c *RPCClient) err(err error) error {
+func (c *HTTPClient) err(err error) error {
 	if c.log != nil && err != nil {
 		c.log.Error(err)
 	}

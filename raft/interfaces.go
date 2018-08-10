@@ -6,8 +6,8 @@ type AppendEntriesHandler func(*AppendEntries, *AppendEntriesResults) error
 // RequestVoteHandler is a delegate that handles request vote rpc calls.
 type RequestVoteHandler func(*RequestVote, *RequestVoteResults) error
 
-// Server is an raft rpc server.
-type Server interface {
+// RPCServer is an raft rpc server.
+type RPCServer interface {
 	// Start should bind whatever is listening for requests.
 	Start() error
 	// Stop should stop the server and clean up any unmanaged resources.
@@ -24,8 +24,8 @@ type Server interface {
 	RequestVoteHandler() RequestVoteHandler
 }
 
-// Client is the interface raft peers should implement.
-type Client interface {
+// RPCClient is the interface raft peers should implement.
+type RPCClient interface {
 	// Open should establish the connection with the client.
 	Open() error
 	// Close should stop the client, and clean up any unmanaged resources.

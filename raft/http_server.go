@@ -11,19 +11,19 @@ import (
 )
 
 var (
-	_ Server = &RPCServer{}
+	_ RPCServer = &HTTPServer{}
 )
 
-// NewRPCServer returns a new roc server.
-func NewRPCServer() *RPCServer {
-	return &RPCServer{
+// NewHTTPServer returns a new roc server.
+func NewHTTPServer() *HTTPServer {
+	return &HTTPServer{
 		bindAddr: DefaultBindAddr,
 		timeout:  DefaultServerTimeout,
 	}
 }
 
-// RPCServer is the net/rpc implementation of the raft server components.
-type RPCServer struct {
+// HTTPServer is the net/http implementation of the raft rpc server components.
+type HTTPServer struct {
 	bindAddr      string
 	timeout       time.Duration
 	requestVote   RequestVoteHandler
@@ -33,59 +33,59 @@ type RPCServer struct {
 }
 
 // WithLogger sets the logger.
-func (s *RPCServer) WithLogger(log *logger.Logger) *RPCServer {
+func (s *HTTPServer) WithLogger(log *logger.Logger) *HTTPServer {
 	s.log = log
 	return s
 }
 
 // Logger returns the logger.
-func (s *RPCServer) Logger() *logger.Logger {
+func (s *HTTPServer) Logger() *logger.Logger {
 	return s.log
 }
 
 // WithBindAddr sets the bind address.
-func (s *RPCServer) WithBindAddr(bindAddr string) *RPCServer {
+func (s *HTTPServer) WithBindAddr(bindAddr string) *HTTPServer {
 	s.bindAddr = bindAddr
 	return s
 }
 
 // BindAddr returns the bind address for the rpc server.
-func (s *RPCServer) BindAddr() string {
+func (s *HTTPServer) BindAddr() string {
 	return s.bindAddr
 }
 
 // WithTimeout sets the server timeout.
-func (s *RPCServer) WithTimeout(d time.Duration) *RPCServer {
+func (s *HTTPServer) WithTimeout(d time.Duration) *HTTPServer {
 	s.timeout = d
 	return s
 }
 
 // Timeout returns the server timeout.
-func (s *RPCServer) Timeout() time.Duration {
+func (s *HTTPServer) Timeout() time.Duration {
 	return s.timeout
 }
 
 // SetAppendEntriesHandler should register the append entries handler.
-func (s *RPCServer) SetAppendEntriesHandler(handler AppendEntriesHandler) {
+func (s *HTTPServer) SetAppendEntriesHandler(handler AppendEntriesHandler) {
 	s.appendEntries = handler
 }
 
 // AppendEntriesHandler returns the append entries handler.
-func (s *RPCServer) AppendEntriesHandler() AppendEntriesHandler {
+func (s *HTTPServer) AppendEntriesHandler() AppendEntriesHandler {
 	return s.appendEntries
 }
 
 // SetRequestVoteHandler should register the request vote handler.
-func (s *RPCServer) SetRequestVoteHandler(handler RequestVoteHandler) {
+func (s *HTTPServer) SetRequestVoteHandler(handler RequestVoteHandler) {
 	s.requestVote = handler
 }
 
 // RequestVoteHandler returns the request vote handler.
-func (s *RPCServer) RequestVoteHandler() RequestVoteHandler {
+func (s *HTTPServer) RequestVoteHandler() RequestVoteHandler {
 	return s.requestVote
 }
 
-func (s *RPCServer) handle(action http.HandlerFunc) http.HandlerFunc {
+func (s *HTTPServer) handle(action http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		// without a logger, just run the action and if panic's happen
 		// let them bubble up
@@ -119,7 +119,7 @@ func (s *RPCServer) handle(action http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func (s *RPCServer) appendEntriesHandler(w http.ResponseWriter, req *http.Request) {
+func (s *HTTPServer) appendEntriesHandler(w http.ResponseWriter, req *http.Request) {
 	var args AppendEntries
 	if err := s.decode(&args, req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -136,7 +136,7 @@ func (s *RPCServer) appendEntriesHandler(w http.ResponseWriter, req *http.Reques
 	}
 }
 
-func (s *RPCServer) requestVoteHandler(w http.ResponseWriter, req *http.Request) {
+func (s *HTTPServer) requestVoteHandler(w http.ResponseWriter, req *http.Request) {
 	var args RequestVote
 	if err := s.decode(&args, req); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -153,7 +153,7 @@ func (s *RPCServer) requestVoteHandler(w http.ResponseWriter, req *http.Request)
 	}
 }
 
-func (s *RPCServer) decode(obj interface{}, req *http.Request) error {
+func (s *HTTPServer) decode(obj interface{}, req *http.Request) error {
 	if req.Body == nil {
 		return exception.New("request body unset")
 	}
@@ -161,12 +161,12 @@ func (s *RPCServer) decode(obj interface{}, req *http.Request) error {
 	return exception.New(json.NewDecoder(req.Body).Decode(obj))
 }
 
-func (s *RPCServer) encode(obj interface{}, w http.ResponseWriter) error {
+func (s *HTTPServer) encode(obj interface{}, w http.ResponseWriter) error {
 	return exception.New(json.NewEncoder(w).Encode(obj))
 }
 
 // createServer creates the http server that handles requests.
-func (s *RPCServer) createServer() *http.Server {
+func (s *HTTPServer) createServer() *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/"+RPCMethodRequestVote, s.handle(s.requestVoteHandler))
 	mux.HandleFunc("/"+RPCMethodAppendEntries, s.handle(s.appendEntriesHandler))
@@ -179,7 +179,7 @@ func (s *RPCServer) createServer() *http.Server {
 }
 
 // Start starts the server.
-func (s *RPCServer) Start() error {
+func (s *HTTPServer) Start() error {
 	if s.log != nil {
 		s.log.Infof("rpc server starting, listening on %s", s.bindAddr)
 	}
@@ -190,7 +190,7 @@ func (s *RPCServer) Start() error {
 
 // Stop stops the server.
 // It allows up to a second for the shutdown to process.
-func (s *RPCServer) Stop() error {
+func (s *HTTPServer) Stop() error {
 	if s.server == nil {
 		return nil
 	}
