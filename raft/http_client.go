@@ -101,8 +101,8 @@ func (c *HTTPClient) RequestVote(args *RequestVote) (*RequestVoteResults, error)
 }
 
 // AppendEntries implements the append entries request handler.
-func (c *HTTPClient) AppendEntries(args *AppendEntries) (*AppendEntriesResults, error) {
-	var res AppendEntriesResults
+func (c *HTTPClient) AppendEntries(args *AppendEntries) (*AppendEntriesResult, error) {
+	var res AppendEntriesResult
 	err := c.callWithTimeout(RPCMethodAppendEntries, args, &res)
 	if err != nil {
 		return nil, exception.New(err)

@@ -126,7 +126,7 @@ func (s *HTTPServer) appendEntriesHandler(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	var res AppendEntriesResults
+	var res AppendEntriesResult
 	s.appendEntries(&args, &res)
 	w.WriteHeader(http.StatusOK)
 	if err := s.encode(res, w); err != nil {

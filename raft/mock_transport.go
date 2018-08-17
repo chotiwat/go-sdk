@@ -22,7 +22,7 @@ func (t NoOpTransport) Close() error { return nil }
 func (t NoOpTransport) RemoteAddr() string { return string(t) }
 
 // AppendEntries implements Client.
-func (t NoOpTransport) AppendEntries(args *AppendEntries) (*AppendEntriesResults, error) {
+func (t NoOpTransport) AppendEntries(args *AppendEntries) (*AppendEntriesResult, error) {
 	return nil, nil
 }
 
@@ -78,11 +78,11 @@ func (mt *MockTransport) RequestVote(args *RequestVote) (*RequestVoteResults, er
 }
 
 // AppendEntries sends a mock append entries to the injected handler.
-func (mt *MockTransport) AppendEntries(args *AppendEntries) (*AppendEntriesResults, error) {
+func (mt *MockTransport) AppendEntries(args *AppendEntries) (*AppendEntriesResult, error) {
 	if mt.disabled {
 		return nil, fmt.Errorf("transport is disabled")
 	}
-	var results AppendEntriesResults
+	var results AppendEntriesResult
 	if err := mt.appendEntriesHandler(args, &results); err != nil {
 		return nil, err
 	}

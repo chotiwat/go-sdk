@@ -13,7 +13,7 @@ import (
 func TestNewRPCServer(t *testing.T) {
 	assert := assert.New(t)
 
-	s := NewRPCServer()
+	s := NewHTTPServer()
 	assert.Nil(s.Logger())
 	assert.Equal(DefaultBindAddr, s.BindAddr())
 	assert.Equal(DefaultServerTimeout, s.Timeout())
@@ -22,7 +22,7 @@ func TestNewRPCServer(t *testing.T) {
 func TestRPCServerDecode(t *testing.T) {
 	assert := assert.New(t)
 
-	s := NewRPCServer()
+	s := NewHTTPServer()
 
 	assert.NotNil(s.decode(nil, &http.Request{}))
 
@@ -42,7 +42,7 @@ func TestRPCServerDecode(t *testing.T) {
 func TestRPCServerEncode(t *testing.T) {
 	assert := assert.New(t)
 
-	s := NewRPCServer()
+	s := NewHTTPServer()
 	things := map[string]interface{}{
 		"foo":  "bar",
 		"buzz": "jazz",
@@ -61,7 +61,7 @@ func TestRPCServerEncode(t *testing.T) {
 func TestRPCServerCreateServer(t *testing.T) {
 	assert := assert.New(t)
 
-	s := NewRPCServer()
+	s := NewHTTPServer()
 	hs := s.createServer()
 
 	assert.NotNil(hs)

@@ -17,8 +17,8 @@ type AppendEntries struct {
 	Entries []Entry
 }
 
-// AppendEntriesResults is the response from an append entries request.
-type AppendEntriesResults struct {
+// AppendEntriesResult is the response from an append entries request.
+type AppendEntriesResult struct {
 	// ID is the node id that responded.
 	ID string
 	// Term is the current term, for leader to update itself

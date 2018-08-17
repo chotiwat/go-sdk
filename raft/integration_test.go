@@ -113,7 +113,7 @@ func createCluster(nodeCount int) *cluster {
 type cluster struct {
 	Config     Config
 	Nodes      []*Raft
-	Transports map[string]map[string]Client
+	Transports map[string]map[string]RPCClient
 	Election   chan *Raft
 }
 
@@ -129,14 +129,14 @@ func (c *cluster) stop() {
 	}
 }
 
-func (c *cluster) addTransport(from, to string, xport Client) {
+func (c *cluster) addTransport(from, to string, xport RPCClient) {
 	if c.Transports == nil {
-		c.Transports = map[string]map[string]Client{}
+		c.Transports = map[string]map[string]RPCClient{}
 	}
 	if xports, has := c.Transports[from]; has {
 		xports[to] = xport
 	} else {
-		c.Transports[from] = map[string]Client{
+		c.Transports[from] = map[string]RPCClient{
 			to: xport,
 		}
 	}

@@ -1,7 +1,7 @@
 package raft
 
 // AppendEntriesHandler is a delegate that handles appendn entries rpc calls.
-type AppendEntriesHandler func(*AppendEntries, *AppendEntriesResults) error
+type AppendEntriesHandler func(*AppendEntries, *AppendEntriesResult) error
 
 // RequestVoteHandler is a delegate that handles request vote rpc calls.
 type RequestVoteHandler func(*RequestVote, *RequestVoteResults) error
@@ -33,7 +33,7 @@ type RPCClient interface {
 	// RemoteAddr should be the identifier for the connection.
 	RemoteAddr() string
 	// AppendEntries should send an append entries rpc.
-	AppendEntries(*AppendEntries) (*AppendEntriesResults, error)
+	AppendEntries(*AppendEntries) (*AppendEntriesResult, error)
 	// RequestVote should send a request vote rpc.
 	RequestVote(*RequestVote) (*RequestVoteResults, error)
 }

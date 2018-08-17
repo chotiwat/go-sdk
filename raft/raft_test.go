@@ -188,7 +188,7 @@ func TestRaftAppendEntriesHandler(t *testing.T) {
 	r := New()
 	r.state = Leader
 
-	var res AppendEntriesResults
+	var res AppendEntriesResult
 	assert.Nil(r.receiveEntries(&AppendEntries{
 		ID:   "test-node",
 		Term: 1,
@@ -212,7 +212,7 @@ func TestRaftAppendEntriesHandlerInvalidTerm(t *testing.T) {
 	r.state = Candidate
 	r.currentTerm = 2
 
-	var res AppendEntriesResults
+	var res AppendEntriesResult
 	assert.Nil(r.receiveEntries(&AppendEntries{
 		ID:   "test-node",
 		Term: 1,
@@ -295,22 +295,22 @@ func TestRaftProcessRequestVoteResults(t *testing.T) {
 	assert.Equal(ElectionLoss, r.processRequestVoteResults(results))
 }
 
-func TestRaftProcessAppendEntriesResults(t *testing.T) {
+func TestRaftProcessAppendEntriesResult(t *testing.T) {
 	assert := assert.New(t)
 
 	r := New().WithID("one").WithPeers(NoOpTransport("two"), NoOpTransport("three"))
 
-	results := make(chan *AppendEntriesResults, 2)
-	results <- &AppendEntriesResults{Success: true}
-	results <- &AppendEntriesResults{Success: true}
+	results := make(chan *AppendEntriesResult, 2)
+	results <- &AppendEntriesResult{Success: true}
+	results <- &AppendEntriesResult{Success: true}
 
-	assert.Equal(ElectionVictory, r.processAppendEntriesResults(results))
+	assert.Equal(ElectionVictory, r.processAppendEntriesResult(results))
 
-	results = make(chan *AppendEntriesResults, 2)
-	results <- &AppendEntriesResults{Success: false}
-	results <- &AppendEntriesResults{Success: false}
+	results = make(chan *AppendEntriesResult, 2)
+	results <- &AppendEntriesResult{Success: false}
+	results <- &AppendEntriesResult{Success: false}
 
-	assert.Equal(ElectionLoss, r.processAppendEntriesResults(results))
+	assert.Equal(ElectionLoss, r.processAppendEntriesResult(results))
 }
 
 func TestRaftTransitionTo(t *testing.T) {
@@ -369,7 +369,7 @@ func TestRaftAppendEntriesDemotesSelf(t *testing.T) {
 	}
 	assert.True(r.IsState(Leader))
 
-	var response AppendEntriesResults
+	var response AppendEntriesResult
 	go r.receiveEntries(&AppendEntries{
 		ID:   uuid.V4().String(),
 		Term: r.currentTerm + 1,
