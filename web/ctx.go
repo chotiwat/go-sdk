@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -104,12 +103,6 @@ func (rc *Ctx) WithRequest(req *http.Request) *Ctx {
 // Request returns the underlying request.
 func (rc *Ctx) Request() *http.Request {
 	return rc.request
-}
-
-// WithTx sets a transaction on the context.
-func (rc *Ctx) WithTx(tx *sql.Tx, optionalKey ...string) *Ctx {
-	WithTx(rc, tx, optionalKey...)
-	return rc
 }
 
 // WithContext sets the background context for the request.

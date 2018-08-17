@@ -2,23 +2,28 @@ package main
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 
 	"github.com/blend/go-sdk/logger"
 	"github.com/blend/go-sdk/web"
 )
 
+/*
+This example is meant to illustrate the bare minimum required to implement an authenticated web app.
+It is meant to be extended considerably, and is not secure as currently formed.
+You should investigate specific authentication mechanisms like oauth to do the actual authentication.
+*/
+
 func main() {
 	app := web.NewFromEnv().WithLogger(logger.All())
 
 	app.ServeStaticCached("/cached", "_static")
-	app.WithStaticMiddleware("/cached", web.SessionMiddleware(func(ctx *web.Ctx) web.Result {
+	app.SetStaticMiddleware("/cached", web.SessionMiddleware(func(ctx *web.Ctx) web.Result {
 		return ctx.Text().NotAuthorized()
 	}, web.SessionReadLock))
 
 	app.ServeStatic("/static", "_static")
-	app.WithStaticMiddleware("/static", web.SessionMiddleware(func(ctx *web.Ctx) web.Result {
+	app.SetStaticMiddleware("/static", web.SessionMiddleware(func(ctx *web.Ctx) web.Result {
 		return ctx.Text().NotAuthorized()
 	}, web.SessionUnsafe))
 
@@ -31,11 +36,7 @@ func main() {
 		return nil
 	})
 
-	app.Auth().SetLoginRedirectHandler(func(ctx *web.Ctx) *url.URL {
-		u := *ctx.Request().URL
-		u.Path = fmt.Sprintf("/login")
-		return &u
-	})
+	app.Auth().SetLoginRedirectHandler(web.PathRedirectHandler("/login"))
 
 	app.Views().AddLiterals(`{{ define "login" }}<a href="/login/user_valid">Login Valid</a><br/><a href="/login/user_notvalid">Login Invalid</a>{{end}}`)
 	app.GET("/login", func(r *web.Ctx) web.Result {
@@ -44,6 +45,7 @@ func main() {
 
 	app.GET("/login/:userID", func(r *web.Ctx) web.Result {
 		if r.Session() != nil {
+			r.Logger().Debugf("already logged in, redirecting")
 			return r.RedirectWithMethodf("GET", "/")
 		}
 
@@ -67,7 +69,7 @@ func main() {
 			return r.Text().InternalError(err)
 		}
 		return r.Text().Result("Logged Out")
-	}, web.SessionAware)
+	}, web.SessionRequired)
 
 	app.GET("/", func(r *web.Ctx) web.Result {
 		return r.Text().Result("Yep")

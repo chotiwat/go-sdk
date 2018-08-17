@@ -1,6 +1,3 @@
-// Package db providers a basic abstraction layer above normal database/sql that makes it easier to
-// interact with the database and organize database related code. It is not intended to replace actual sql
-// (you write queries yourself).
 package db
 
 import (

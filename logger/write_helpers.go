@@ -21,7 +21,7 @@ func FormatFileSize(sizeBytes int) string {
 
 // TextWriteHTTPRequest is a helper method to write request start events to a writer.
 func TextWriteHTTPRequest(tf TextFormatter, buf *bytes.Buffer, req *http.Request) {
-	if ip := GetIP(req); len(ip) > 0 {
+	if ip := GetRemoteAddr(req); len(ip) > 0 {
 		buf.WriteString(ip)
 		buf.WriteRune(RuneSpace)
 	}
@@ -32,7 +32,7 @@ func TextWriteHTTPRequest(tf TextFormatter, buf *bytes.Buffer, req *http.Request
 
 // TextWriteHTTPResponse is a helper method to write request complete events to a writer.
 func TextWriteHTTPResponse(tf TextFormatter, buf *bytes.Buffer, req *http.Request, statusCode, contentLength int, contentType string, elapsed time.Duration) {
-	buf.WriteString(GetIP(req))
+	buf.WriteString(GetRemoteAddr(req))
 	buf.WriteRune(RuneSpace)
 	buf.WriteString(tf.Colorize(req.Method, ColorBlue))
 	buf.WriteRune(RuneSpace)
@@ -50,7 +50,7 @@ func TextWriteHTTPResponse(tf TextFormatter, buf *bytes.Buffer, req *http.Reques
 // JSONWriteHTTPRequest marshals a request start as json.
 func JSONWriteHTTPRequest(req *http.Request) JSONObj {
 	return JSONObj{
-		"ip":   GetIP(req),
+		"ip":   GetRemoteAddr(req),
 		"verb": req.Method,
 		"path": req.URL.Path,
 		"host": req.Host,
@@ -60,7 +60,7 @@ func JSONWriteHTTPRequest(req *http.Request) JSONObj {
 // JSONWriteHTTPResponse marshals a request as json.
 func JSONWriteHTTPResponse(req *http.Request, statusCode, contentLength int, contentType, contentEncoding string, elapsed time.Duration) JSONObj {
 	return JSONObj{
-		"ip":              GetIP(req),
+		"ip":              GetRemoteAddr(req),
 		"verb":            req.Method,
 		"path":            req.URL.Path,
 		"host":            req.Host,

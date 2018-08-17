@@ -2,7 +2,6 @@ package web
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -153,12 +152,6 @@ func (mrb *MockRequestBuilder) WithPostedFile(postedFile PostedFile) *MockReques
 		mrb.postedFiles = map[string]PostedFile{}
 	}
 	mrb.postedFiles[postedFile.Key] = postedFile
-	return mrb
-}
-
-// WithTx sets the transaction for the request.
-func (mrb *MockRequestBuilder) WithTx(tx *sql.Tx, keys ...string) *MockRequestBuilder {
-	WithTx(mrb, tx, keys...)
 	return mrb
 }
 

@@ -33,6 +33,7 @@ func New() *App {
 		redirectTrailingSlash: true,
 		recoverPanics:         true,
 		defaultHeaders:        DefaultHeaders,
+		shutdownGracePeriod:   DefaultShutdownGracePeriod,
 		views:                 views,
 		viewProvider:          vrp,
 		jsonProvider:          &JSONResultProvider{},
@@ -80,6 +81,8 @@ type App struct {
 
 	server   *http.Server
 	listener *net.TCPListener
+
+	shutdownGracePeriod time.Duration
 
 	// statics serve files at various routes
 	statics map[string]Fileserver
@@ -137,12 +140,25 @@ func (a *App) WithConfig(cfg *Config) *App {
 	a.WithViewResultProvider(&ViewResultProvider{views: a.Views()})
 	a.WithBaseURL(MustParseURL(cfg.GetBaseURL()))
 
+	a.WithShutdownGracePeriod(cfg.GetShutdownGracePeriod())
+
 	return a
 }
 
 // Running returns if the app is running.
 func (a *App) Running() (running bool) {
 	return atomic.LoadInt32(&a.running) == 1
+}
+
+// WithShutdownGracePeriod sets the shutdown grace period.
+func (a *App) WithShutdownGracePeriod(gracePeriod time.Duration) *App {
+	a.shutdownGracePeriod = gracePeriod
+	return a
+}
+
+// ShutdownGracePeriod is the grace period on shutdown.
+func (a *App) ShutdownGracePeriod() time.Duration {
+	return a.shutdownGracePeriod
 }
 
 // WithDefaultHeaders sets the default headers
@@ -630,12 +646,18 @@ func (a *App) Start() (err error) {
 	}
 
 	a.setRunning()
-	keepAlive := TCPKeepAliveListener{a.listener}
+	keepAliveListener := TCPKeepAliveListener{a.listener}
+	var shutdownErr error
 	if a.server.TLSConfig != nil {
-		err = exception.New(a.server.ServeTLS(keepAlive, "", ""))
+		shutdownErr = a.server.ServeTLS(keepAliveListener, "", "")
 	} else {
-		err = exception.New(a.server.Serve(keepAlive))
+		shutdownErr = a.server.Serve(keepAliveListener)
 	}
+
+	if shutdownErr != nil && shutdownErr != http.ErrServerClosed {
+		err = exception.New(shutdownErr)
+	}
+
 	a.setStopped()
 	return
 }
@@ -651,12 +673,16 @@ func (a *App) Shutdown() error {
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), a.shutdownGracePeriod)
 	defer cancel()
 
 	a.syncInfof("server shutting down")
 	a.server.SetKeepAlivesEnabled(false)
-	return exception.New(a.server.Shutdown(ctx))
+	if err := a.server.Shutdown(ctx); err != nil {
+		return exception.New(err)
+	}
+
+	return nil
 }
 
 // WithControllers registers given controllers and returns a reference to the app.

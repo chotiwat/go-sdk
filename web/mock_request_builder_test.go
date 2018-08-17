@@ -1,7 +1,6 @@
 package web
 
 import (
-	"database/sql"
 	"fmt"
 	"testing"
 
@@ -75,18 +74,4 @@ func TestMockRequestBuilderPanicHandler(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal(http.StatusInternalServerError, meta.StatusCode)
 	assert.True(didPanic)
-}
-
-func TestMockRequestBuilderActionHasTransaction(t *testing.T) {
-	assert := assert.New(t)
-
-	var hasTx bool
-	app := New()
-	app.GET("/", func(r *Ctx) Result {
-		hasTx = Tx(r) != nil
-		return nil
-	})
-
-	assert.Nil(app.Mock().WithTx(&sql.Tx{}).Get("/").Execute())
-	assert.True(hasTx)
 }

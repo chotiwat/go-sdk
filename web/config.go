@@ -66,6 +66,8 @@ type Config struct {
 	WriteTimeout      time.Duration `json:"writeTimeout,omitempty" yaml:"writeTimeout,omitempty" env:"WRITE_TIMEOUT"`
 	IdleTimeout       time.Duration `json:"idleTimeout,omitempty" yaml:"idleTimeout,omitempty" env:"IDLE_TIMEOUT"`
 
+	ShutdownGracePeriod time.Duration `json:"shutdownGracePeriod" yaml:"shutdownGracePeriod" env:"SHUTDOWN_GRACE_PERIOD"`
+
 	TLS   TLSConfig       `json:"tls,omitempty" yaml:"tls,omitempty"`
 	Views ViewCacheConfig `json:"views,omitempty" yaml:"views,omitempty"`
 }
@@ -253,4 +255,9 @@ func (c Config) GetSecureCookieHTTPSOnly(defaults ...bool) bool {
 // GetSecureCookieName returns a property or a default.
 func (c Config) GetSecureCookieName(defaults ...string) string {
 	return util.Coalesce.String(c.SecureCookieName, DefaultSecureCookieName, defaults...)
+}
+
+// GetShutdownGracePeriod gets the shutdown grace period.
+func (c Config) GetShutdownGracePeriod(defaults ...time.Duration) time.Duration {
+	return util.Coalesce.Duration(c.ShutdownGracePeriod, DefaultShutdownGracePeriod, defaults...)
 }

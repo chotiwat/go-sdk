@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -26,6 +27,15 @@ func MustParseURL(rawURL string) *url.URL {
 		panic(err)
 	}
 	return u
+}
+
+// PathRedirectHandler returns a handler for AuthManager.RedirectHandler based on a path.
+func PathRedirectHandler(path string) func(*Ctx) *url.URL {
+	return func(ctx *Ctx) *url.URL {
+		u := *ctx.Request().URL
+		u.Path = fmt.Sprintf("/login")
+		return &u
+	}
 }
 
 // NestMiddleware reads the middleware variadic args and organizes the calls recursively in the order they appear.

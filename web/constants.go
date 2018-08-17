@@ -235,6 +235,9 @@ const (
 
 	// DefaultHTTPSUpgradeTargetPort is the default upgrade target port.
 	DefaultHTTPSUpgradeTargetPort = 443
+
+	// DefaultShutdownGracePeriod is the default shutdown grace period.
+	DefaultShutdownGracePeriod = 5 * time.Second
 )
 
 // DefaultHeaders are the default headers added by go-web.
