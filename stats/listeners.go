@@ -1,6 +1,7 @@
 package stats
 
 import (
+	"reflect"
 	"strconv"
 
 	"github.com/blend/go-sdk/exception"
@@ -42,7 +43,7 @@ func Tag(key, value string) string {
 
 // AddWebListeners adds web listeners.
 func AddWebListeners(log *logger.Logger, stats Collector) {
-	if log == nil || stats == nil {
+	if log == nil || stats == nil || reflect.ValueOf(stats).IsNil() {
 		return
 	}
 
@@ -69,7 +70,7 @@ func AddWebListeners(log *logger.Logger, stats Collector) {
 
 // AddQueryListeners adds db listeners.
 func AddQueryListeners(log *logger.Logger, stats Collector) {
-	if log == nil || stats == nil {
+	if log == nil || stats == nil || reflect.ValueOf(stats).IsNil() {
 		return
 	}
 
@@ -96,7 +97,7 @@ func AddQueryListeners(log *logger.Logger, stats Collector) {
 
 // AddErrorListeners adds error listeners.
 func AddErrorListeners(log *logger.Logger, stats Collector) {
-	if log == nil || stats == nil {
+	if log == nil || stats == nil || reflect.ValueOf(stats).IsNil() {
 		return
 	}
 	log.Listen(logger.Warning, ListenerNameStats, logger.NewErrorEventListener(func(ee *logger.ErrorEvent) {
